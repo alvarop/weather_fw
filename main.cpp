@@ -1,7 +1,10 @@
-#include "mbed.h"
 #include <stdio.h>
+#include "mbed.h"
+#include "rtos.h"
 
 DigitalOut led1(LED1);
+
+Thread gps_thread;
 
 class Light {
 public:
@@ -112,18 +115,62 @@ private:
     Timer timer;
 };
 
+class GPS {
+public:
+    GPS(PinName tx_pin, PinName rx_pin)
+        : uart(tx_pin, rx_pin) {
+    }
+
+    uint8_t * readline() {
+        uint16_t index = 0;
+        bool scanning = true;
+
+        while(scanning) {
+            gps_linebuff[index] = uart.getc();
+
+            if (gps_linebuff[index] == '\n') {
+                gps_linebuff[index] = 0;
+                scanning = false;
+            }
+
+            index++;
+
+            if (index >= (sizeof(gps_linebuff) - 1)) {
+                index = 0;
+            }
+    }
+
+    return gps_linebuff;
+}
+
+
+private:
+    Serial uart;
+    uint8_t gps_linebuff[256];
+};
+
 Wind wind(PC_2, PA_4);
 Rain rain(PC_3);
 Light light(PA_1);
+GPS gps(PA_9, PA_10); //tx rx
+
+void gps_thread_fn() {
+    while(true) {
+        uint8_t *line = gps.readline();
+        printf("\"%s\"\n", line);
+        ThisThread::sleep_for(10);
+    }
+}
 
 int main() {
+    printf("GPS TEST\n");
+    gps_thread.start(gps_thread_fn);
     while (true) {
         led1 = !led1;
         wait(2);
         printf("wspeed: %1.2f kph @ %3.1f\n", wind.read_kph(), wind.read_dir());
         printf("Rain: %f mm\n", rain.read_mm());
         printf("Light: %f\n", light.read());
-
     }
 }
 
