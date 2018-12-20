@@ -15,7 +15,6 @@ Run `pipenv install --two` to setup (Mbed tools don't like Python 3 yet)
 To compile, run `pipenv run mbed compile`
 To compile and flash, run `pipenv run mbed compile --flash`
 
-
 ## Debug
 
 ### Makefiles
