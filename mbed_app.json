@@ -2,6 +2,12 @@
     "config": {
         "core": {
             "stdio-baud-rate": 115200
+        },
+
+        "nmea-parser-count": {
+            "help": "The first configuration parameter",
+            "macro_name": "PARSER_COUNT",
+            "value": 3
         }
     }
 }
