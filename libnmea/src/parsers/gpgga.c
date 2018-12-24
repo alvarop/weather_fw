@@ -79,6 +79,11 @@ nmea_gpgga_parse(nmea_parser_s *parser, char *value, int val_index)
 		}
 		break;
 
+	case NMEA_GPGGA_QUALITY:
+		/* Parse fix quality */
+		data->quality = atoi(value);
+		break;
+
 	case NMEA_GPGGA_N_SATELLITES:
 		/* Parse number of satellies */
 		data->n_satellites = atoi(value);
