@@ -2,6 +2,7 @@
 #include "mbed.h"
 #include "rtos.h"
 #include "am2315.h"
+#include "bmp280.h"
 #include "wind.h"
 #include "rain.h"
 #include "gps.h"
@@ -27,6 +28,7 @@ GPS gps(PA_9, PA_10); //tx rx
 I2C i2c(PB_14, PB_13);
 
 AM2315 th(i2c);
+BMP280 bmp280(i2c);
 
 Serial xbee_uart(PC_10, PC_11, 115200);
 
@@ -127,6 +129,12 @@ int main() {
 
     static char str[128];
 
+    wait(1);
+
+    // Dummy reads and initializations
+    th.read();
+    bmp280.init();
+
     while (true) {
         led1 = !led1;
 
@@ -135,10 +143,12 @@ int main() {
         float rain_mm = rain.read_mm();
         // float light_level = light.read();
         th.read();
+        bmp280.read();
 
         printf("wspeed: %1.2f kph @ %3.1f\n", wind_speed, wind_dir);
         printf("Rain: %f mm\n", rain_mm);
         printf("t: %0.2f C, h:%0.2f %%RH\n", th.celsius, th.humidity);
+        printf("t2: %0.2f p:%0.2f\n", bmp280.getTemperature(), bmp280.getPressure()/100.0);
         // printf("Light: %f\n", light_level);
 
         xbee_enable();
@@ -149,14 +159,14 @@ int main() {
             "ra:%0.3f\n"
             "te:%0.2f\n"
             "hu:%0.2f\n"
-            "pr:%0.3f\n"
+            "pr:%0.2f\n"
             "li:%0.3f\n",
             wind_speed,
             wind_dir,
             rain_mm,
             th.celsius,
             th.humidity,
-            0.0,
+            (bmp280.getPressure() / 100.0), // convert to hPa
             0.0);
         packet_tx(strlen(str), str);
         wait(0.01);
