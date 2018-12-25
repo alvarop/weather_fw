@@ -11,13 +11,13 @@
 class AM2315
 {
     public:
-        AM2315(PinName SDA , PinName SCL );
+        AM2315(I2C &i2c_obj);
         bool read();
 
         float celsius;
         float humidity;
     private:
-        I2C i2c;
+        I2C &i2c;
 };
 
 #endif

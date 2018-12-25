@@ -24,7 +24,9 @@ Rain rain(PC_3);
 Light light(PA_1);
 GPS gps(PA_9, PA_10); //tx rx
 
-AM2315 th(PB_14, PB_13);
+I2C i2c(PB_14, PB_13);
+
+AM2315 th(i2c);
 
 Serial xbee_uart(PC_10, PC_11, 115200);
 
@@ -86,8 +88,6 @@ int32_t packet_tx(uint16_t len, void *data) {
 }
 
 void gps_thread_fn() {
-    static char str[128];
-
     while(true) {
         char *sentence = (char *)gps.readline();
 

@@ -3,7 +3,7 @@
 #include "mbed.h"
 
 
-AM2315::AM2315(PinName SDA = I2C_SDA , PinName SCL = I2C_SCL ):i2c(SDA, SCL)
+AM2315::AM2315(I2C &i2c_obj):i2c(i2c_obj)
 {
 }
 
