@@ -141,7 +141,7 @@ int main() {
         float wind_speed = wind.read_kph();
         float wind_dir = wind.read_dir();
         float rain_mm = rain.read_mm();
-        // float light_level = light.read();
+        float light_level = light.read() * 3.3f * 5.67f; // Hijacking to measure 12V battery voltage
         th.read();
         bmp280.read();
 
@@ -149,7 +149,7 @@ int main() {
         printf("Rain: %f mm\n", rain_mm);
         printf("t: %0.2f C, h:%0.2f %%RH\n", th.celsius, th.humidity);
         printf("t2: %0.2f p:%0.2f\n", bmp280.getTemperature(), bmp280.getPressure()/100.0);
-        // printf("Light: %f\n", light_level);
+        printf("Light: %f\n", light_level);
 
         xbee_enable();
         wait(0.01);
@@ -167,7 +167,8 @@ int main() {
             th.celsius,
             th.humidity,
             (bmp280.getPressure() / 100.0), // convert to hPa
-            0.0);
+            light_level
+            );
         packet_tx(strlen(str), str);
         wait(0.01);
         xbee_disable();
