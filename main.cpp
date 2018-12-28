@@ -7,26 +7,20 @@
 #include "rain.h"
 #include "gps.h"
 #include "light.h"
-
 #include "crc.h"
-
-#include "nmea.h"
-#include "gpgga.h"
-
 #include "pins.h"
 
 DigitalOut led1(LED_PIN);
 
 DigitalIn x_on(XBEE_ON_PIN);
-DigitalOut x_sby(XBEE_SBY_PIN,0);
+DigitalOut x_sby(XBEE_nSBY_PIN,0);
 Serial xbee_uart(XBEE_UART_RX, XBEE_UART_TX, 115200);
-
-Thread gps_thread;
 
 Wind wind(WIND_SPEED_PIN, WIND_DIR_PIN);
 Rain rain(RAIN_PIN);
 Light light(LIGHT_PIN);
-GPS gps(GPS_RX_PIN, GPS_TX_PIN);
+GPS gps(GPS_RX_PIN, GPS_TX_PIN, 115200,
+        GPS_FIX_PIN, GPS_nRST_PIN, GPS_nSBY_PIN);
 
 I2C i2c(I2C_SDA_PIN, I2C_SCL_PIN);
 
@@ -90,47 +84,16 @@ int32_t packet_tx(uint16_t len, void *data) {
     return rval;
 }
 
-void gps_thread_fn() {
-    while(true) {
-        char *sentence = (char *)gps.readline();
-
-        if(strlen(sentence) > 0) {
-            // Pointer to struct containing the parsed data. Should be freed manually.
-            nmea_s *data;
-
-            // Parse...
-            data = nmea_parse(sentence, strlen(sentence), 0);
-            if(data != NULL) {
-                // print GPGGA data
-                if (NMEA_GPGGA == data->type) {
-                    nmea_gpgga_s *gpgga = (nmea_gpgga_s *) data;
-                    printf("GPGGA[%d, %02d] %d %f %c %d %f %c\n",
-                        gpgga->quality,
-                        gpgga->n_satellites,
-                        gpgga->longitude.degrees,
-                        gpgga->longitude.minutes,
-                        (char) gpgga->longitude.cardinal,
-                        gpgga->latitude.degrees,
-                        gpgga->latitude.minutes,
-                        (char) gpgga->latitude.cardinal
-                        );
-                }
-
-                nmea_free(data);
-            }
-        }
-
-        ThisThread::sleep_for(10);
-    }
-}
+static uint32_t *uid = (uint32_t *)(0x1FFF7590);
 
 int main() {
-
-    // gps_thread.start(gps_thread_fn);
-
     static char str[128];
 
+    gps.start();
+
     wait(1);
+
+    printf("UID:%08lX\n", uid[0] ^ uid[1] ^ uid[2]);
 
     // Dummy reads and initializations
     th.read();
