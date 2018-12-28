@@ -40,13 +40,19 @@ void GPS::gps_thread_fn(GPS *gps) {
                             (char) gpgga->latitude.cardinal
                             );
 
+                        gps->lon_degrees = gpgga->longitude.degrees;
+                        gps->lon_minutes = gpgga->longitude.minutes;
+                        gps->lon_cardinal = (char)gpgga->longitude.cardinal;
+                        gps->lat_degrees = gpgga->latitude.degrees;
+                        gps->lat_minutes = gpgga->latitude.minutes;
+                        gps->lat_cardinal = (char)gpgga->latitude.cardinal;
+
                         // Disable RX irq
                         gps->uart.attach(NULL);
 
                         // Put GPS to sleep
                         gps->gps_sby.write(0);
 
-                        // TODO - save data
                         // TODO - put thread to sleep
                     }
 
@@ -71,6 +77,17 @@ GPS::GPS(PinName tx_pin, PinName rx_pin, uint32_t baud_rate,
 
     gps_fix.rise(callback(gps_fix_irq, this));
     gps_fix_flag = false;
+
+    lat_degrees = 0;
+    lat_minutes = 0.0f;
+    lat_cardinal = ' ';
+    lon_degrees = 0;
+    lon_minutes = 0.0f;
+    lon_cardinal = ' ';
+}
+
+bool GPS::position_ready() {
+    return (gps_fix_flag && lon_cardinal != ' ');
 }
 
 void GPS::start() {

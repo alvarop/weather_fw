@@ -10,6 +10,13 @@ public:
         PinName gps_fix_pin, PinName gps_nrst_pin, PinName gps_sby_pin);
     uint8_t * readline();
     void start();
+    bool position_ready();
+    int32_t lat_degrees;
+    double  lat_minutes;
+    char    lat_cardinal;
+    int32_t lon_degrees;
+    double  lon_minutes;
+    char    lon_cardinal;
 private:
     static void uart_irq(GPS *gps);
     static void gps_thread_fn(GPS *gps);
