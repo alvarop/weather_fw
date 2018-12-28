@@ -25,7 +25,12 @@ GPS gps(GPS_RX_PIN, GPS_TX_PIN, 115200,
 I2C i2c(I2C_SDA_PIN, I2C_SCL_PIN);
 
 AM2315 th(i2c);
-BMP280 bmp280(i2c);
+
+#if BOARD_VERSION == 1
+BMP280 bmp280(i2c, BMP280_ADDR_ALT);
+#else
+BMP280 bmp280(i2c, BMP280_ADDR);
+#endif
 
 typedef struct {
     uint16_t start;

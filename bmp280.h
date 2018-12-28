@@ -3,7 +3,8 @@
 
 #include "mbed.h"
 
-#define BMP280_ADDR             (0x77 << 1)
+#define BMP280_ADDR             (0x76 << 1)
+#define BMP280_ADDR_ALT         (0x77 << 1)
 #define BMP280_DIG_T1_ADDR      (0x88)
 #define BMP280_CHIP_ID_ADDR     (0xD0)
 #define BMP280_SOFT_RESET_ADDR  (0xE0)
