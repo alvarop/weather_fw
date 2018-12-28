@@ -13,24 +13,25 @@
 #include "nmea.h"
 #include "gpgga.h"
 
-DigitalOut led1(LED1);
+#include "pins.h"
 
-DigitalIn x_on(PB_8);
-DigitalOut x_sby(PC_12,0);
+DigitalOut led1(LED_PIN);
+
+DigitalIn x_on(XBEE_ON_PIN);
+DigitalOut x_sby(XBEE_SBY_PIN,0);
+Serial xbee_uart(XBEE_UART_RX, XBEE_UART_TX, 115200);
 
 Thread gps_thread;
 
-Wind wind(PC_2, PA_4);
-Rain rain(PC_3);
-Light light(PA_1);
-GPS gps(PA_9, PA_10); //tx rx
+Wind wind(WIND_SPEED_PIN, WIND_DIR_PIN);
+Rain rain(RAIN_PIN);
+Light light(LIGHT_PIN);
+GPS gps(GPS_RX_PIN, GPS_TX_PIN);
 
-I2C i2c(PB_14, PB_13);
+I2C i2c(I2C_SDA_PIN, I2C_SCL_PIN);
 
 AM2315 th(i2c);
 BMP280 bmp280(i2c);
-
-Serial xbee_uart(PC_10, PC_11, 115200);
 
 typedef struct {
     uint16_t start;
